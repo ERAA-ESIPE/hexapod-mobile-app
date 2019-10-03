@@ -7,7 +7,6 @@ import 'package:control_pad/views/pad_button_view.dart';
 import 'package:exapodpad/views/setting_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:exapodpad/services/socketservice.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,23 +19,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _ip, _port;
-
   SocketService socket;
-
-  void _read() async {
-    var prefs = await SharedPreferences.getInstance();
-    final portKey = 'port';
-    _port = prefs.getString(portKey);
-    final ipKey = 'address';
-    _ip = prefs.getString(ipKey);
-  }
 
   @override
   void initState() {
     super.initState();
-    _read();
-    socket = new SocketService(_ip, int.parse(_port));
+    socket = new SocketService();
     socket.initSocket();
   }
 
@@ -55,16 +43,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _padPressed(int buttonIndex, Gestures gesture) {
-    print('read: $_ip');
-    print('read: $_port');
     socket.sendMessage("toto");
   }
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      _read();
-    });
 
     final appBar = new AppBar(
       //elevation: 0.1,
