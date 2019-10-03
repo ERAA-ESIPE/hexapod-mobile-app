@@ -1,24 +1,23 @@
 import 'dart:io';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 class SocketService {
   Socket socket;
+  String host;
+  int port;
 
-  Future<Socket> _getSocket(String host, int port) async {
+  SocketService(String host, int port) {
+    this.host = host;
+    this.port = port;
+  }
+
+  Future<Socket> _getSocket() async {
     return await Socket.connect(host, port);
   }
 
   void initSocket() async {
     /* Read host and port from local storage */
-    var prefs = await SharedPreferences.getInstance();
-    prefs.reload();
-    final portKey = 'port';
-    final port = int.parse(prefs.getString(portKey));
-    final ipKey = 'address';
-    final host = prefs.getString(ipKey);
 
-    this.socket = await _getSocket(host, port);
+    this.socket = await _getSocket();
   }
 
   void sendMessage(String message) {

@@ -8,6 +8,7 @@ import 'package:exapodpad/views/setting_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:exapodpad/services/socketservice.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -20,17 +21,32 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   SocketService socket;
+  String _ip;
+  String _port;
+
+  void _read() async {
+    var prefs = await SharedPreferences.getInstance();
+    final portKey = 'port';
+    _port = prefs.getString(portKey);
+    final ipKey = 'address';
+    _ip = prefs.getString(ipKey);
+    print('read home');
+    print('_host: $_ip');
+    print('_port: $_port');
+    this.socket = new SocketService(_ip, int.parse(_port));
+    this.socket.initSocket();
+  }
 
   @override
   void initState() {
     super.initState();
-    socket = new SocketService();
-    socket.initSocket();
+    _read();
   }
 
   @override
   void dispose() {
     super.dispose();
+    print('destroy');
     socket.destroy();
   }
 
@@ -48,6 +64,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('home build');
 
     final appBar = new AppBar(
       //elevation: 0.1,
@@ -74,12 +91,25 @@ class _HomePageState extends State<HomePage> {
             ),
             new IconButton(
               icon: Icon(Icons.settings_applications, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                var result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SettingsPage(title: "Settings")),
+                    builder: (context) => SettingsPage(title: "Settings"),
+                  ),
                 );
+
+                var splited = result?.toString()?.split(":");
+                var newHost = splited[0];
+                var newPort = splited[1];
+
+                if (_ip.compareTo(newHost) != 0 ||
+                    _port.compareTo(newPort) != 0) {
+                  setState(() {
+                    socket.destroy();
+                    _read();
+                  });
+                } else {}
               },
             )
           ],
