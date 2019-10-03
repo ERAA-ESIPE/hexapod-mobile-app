@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:exapodpad/views/trame.dart';
+
 class SocketService {
   Socket socket;
   String host;
@@ -20,8 +22,9 @@ class SocketService {
     this.socket = await _getSocket();
   }
 
-  void sendMessage(String message) {
-    this.socket.write(message);
+  void sendMessage(Trame message) {
+    this.socket.write(message.toString());
+    this.socket.write('\n');
   }
 
   void destroy() {

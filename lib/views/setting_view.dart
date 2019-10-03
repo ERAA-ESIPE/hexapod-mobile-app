@@ -24,9 +24,6 @@ class _SettingsPageState extends State<SettingsPage> {
     _port = prefs.getString(portKey);
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
-    print('setting');
-    print('_host: $_ip');
-    print('_port: $_port');
   }
 
   @override
@@ -41,8 +38,6 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setString(portKey, _port);
     final ipKey = 'address';
     await prefs.setString(ipKey, _ip);
-    print('save: $_ip');
-    print('save: $_port');
   }
 
   void _submit() async {

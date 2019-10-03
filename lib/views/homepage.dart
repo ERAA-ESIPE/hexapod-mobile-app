@@ -5,6 +5,7 @@ import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
 import 'package:exapodpad/views/setting_view.dart';
+import 'package:exapodpad/views/trame.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:exapodpad/services/socketservice.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   SocketService socket;
   String _ip;
   String _port;
+  final MASK = 0x1;
 
   void _read() async {
     var prefs = await SharedPreferences.getInstance();
@@ -30,9 +32,6 @@ class _HomePageState extends State<HomePage> {
     _port = prefs.getString(portKey);
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
-    print('read home');
-    print('_host: $_ip');
-    print('_port: $_port');
     this.socket = new SocketService(_ip, int.parse(_port));
     this.socket.initSocket();
   }
@@ -46,26 +45,46 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
-    print('destroy');
     socket.destroy();
+  }
+
+  int buildButtonOctet(int position) {
+    int n = 0x0;
+    n = (n) | (MASK << position);
+    return n;
   }
 
   _onChange(num degrees, num distance) {
     num x = distance * sin(degrees);
     num y = distance * -cos(degrees);
 
-    print("x: " + x.toString());
-    print("y: " + y.toString());
+    print('distance: $distance');
+
+    print('degress: $degrees');
+
+    int buttons = 0;
+    int leftStickX = 0;
+    int leftStickY = 0;
+    int rightStickX = 0;
+    int rightStickY = 0;
+    var trame =
+        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
+    socket.sendMessage(trame);
   }
 
   _padPressed(int buttonIndex, Gestures gesture) {
-    socket.sendMessage("toto");
+    int buttons = buildButtonOctet(buttonIndex);
+    int leftStickX = 0;
+    int leftStickY = 0;
+    int rightStickX = 0;
+    int rightStickY = 0;
+    var trame =
+        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
+    socket.sendMessage(trame);
   }
 
   @override
   Widget build(BuildContext context) {
-    print('home build');
-
     final appBar = new AppBar(
       //elevation: 0.1,
       backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
@@ -138,27 +157,27 @@ class _HomePageState extends State<HomePage> {
     var leftPadButton = new List<PadButtonItem>();
     leftPadButton.add(
       new PadButtonItem(
-          index: 1,
-          buttonImage: Image.asset("assets/l1.png"),
-          buttonText: "L1"),
+        index: 3,
+        buttonImage: Image.asset("assets/right-arrow.png"),
+      ),
     );
     leftPadButton.add(
       new PadButtonItem(
-          index: 2,
-          buttonImage: Image.asset("assets/r2.png"),
-          buttonText: "L2"),
+        index: 7,
+        buttonImage: Image.asset("assets/r2.png"),
+      ),
     );
     leftPadButton.add(
       new PadButtonItem(
-          index: 3,
-          buttonImage: Image.asset("assets/l2.png"),
+          index: 5,
+          buttonImage: Image.asset("assets/left-arrow.png"),
           buttonText: "R1"),
     );
     leftPadButton.add(
       new PadButtonItem(
-          index: 4,
-          buttonImage: Image.asset("assets/r1.png"),
-          buttonText: "R2"),
+        index: 4,
+        buttonImage: Image.asset("assets/r1.png"),
+      ),
     );
 
     var leftPad = new PadButtonsView(
@@ -171,9 +190,8 @@ class _HomePageState extends State<HomePage> {
     var rightPadButton = new List<PadButtonItem>();
     rightPadButton.add(
       new PadButtonItem(
-        index: 5,
+        index: 0,
         buttonImage: Image.asset("assets/circle.png"),
-        buttonText: "Y",
       ),
     );
     rightPadButton.add(
@@ -184,15 +202,14 @@ class _HomePageState extends State<HomePage> {
     );
     rightPadButton.add(
       new PadButtonItem(
-        index: 7,
+        index: 2,
         buttonImage: Image.asset("assets/square.png"),
       ),
     );
     rightPadButton.add(
       new PadButtonItem(
-        index: 8,
+        index: 1,
         buttonImage: Image.asset("assets/triangle.png"),
-        buttonText: "Y",
       ),
     );
 
