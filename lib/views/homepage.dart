@@ -4,11 +4,11 @@ import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
-import 'package:exapodpad/setting_view.dart';
+import 'package:exapodpad/views/setting_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:exapodpad/socketservice.dart';
+import 'package:exapodpad/services/socketservice.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);

@@ -6,8 +6,7 @@ class SocketService {
   Socket socket;
 
   Future<Socket> _getSocket(String host, int port) async {
-    var result = await Socket.connect(host, port);
-    return result;
+    return await Socket.connect(host, port);
   }
 
   SocketService(String host, int port) {
@@ -23,8 +22,7 @@ class SocketService {
     this.socket.write(message);
   }
 
-
-  void destroy(){
+  void destroy() {
     this.socket.close();
   }
 }
