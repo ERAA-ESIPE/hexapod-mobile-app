@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    var componentSize = (MediaQuery.of(context).size.width / 4) - 20;
+    var componentSize = (MediaQuery.of(context).size.height / 2.5);
 
     var leftJoystick = new JoystickView(
       size: componentSize,
