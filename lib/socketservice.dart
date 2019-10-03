@@ -1,41 +1,30 @@
-import 'package:adhara_socket_io/adhara_socket_io.dart';
-import 'package:adhara_socket_io/manager.dart';
-import 'package:adhara_socket_io/socket.dart';
+import 'dart:io';
 
-class Socket {
-  SocketIO socket;
-  String channel;
+class SocketService {
+  String host;
+  int port;
+  Socket socket;
 
-  _getSocket(String host, int port) async {
-    var socket = await SocketIOManager()
-        .createInstance(new SocketOptions("http://${host}:${port}"));
-    return socket.connect();
+  Future<Socket> _getSocket(String host, int port) async {
+    var result = await Socket.connect(host, port);
+    return result;
   }
 
-  Socket(String host, int port, String channel) {
-    this.socket = _getSocket(host, port);
-    this.channel = channel;
-
-    this.socket.onConnect((data) {
-      print("connected...");
-      print(data);
-    });
-
-    this.socket.on(channel, (data) {
-      print("channel");
-      print(data);
-    });
-
-    socket.connect();
+  SocketService(String host, int port) {
+    this.host = host;
+    this.port = port;
   }
 
-  sendMessage(String eventName, List messages) {
-    this.socket.emit(eventName, messages);
+  void initSocket() async {
+    this.socket = await _getSocket(host, port);
   }
 
-  destroy() {
-    this.socket.off(this.channel, (listener) {
-      print("unsouscried ${this.channel}");
-    });
+  void sendMessage(String message) {
+    this.socket.write(message);
+  }
+
+
+  void destroy(){
+    this.socket.close();
   }
 }

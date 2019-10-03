@@ -8,6 +8,7 @@ import 'package:exapodpad/setting_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:exapodpad/socketservice.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -19,7 +20,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //var socket = new Socket('localhost', 8000, 'exapod_channel');
+  final socket = new SocketService('192.168.1.24', 8000);
+
   String _ip, _port;
 
   void _read() async {
@@ -34,11 +36,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _read();
+    socket.initSocket();
   }
 
   @override
   void dispose() {
     super.dispose();
+    socket.destroy();
   }
 
   _onChange(num degrees, num distance) {
@@ -52,6 +56,7 @@ class _HomePageState extends State<HomePage> {
   _padPressed(int buttonIndex, Gestures gesture) {
     print('read: $_ip');
     print('read: $_port');
+    socket.sendMessage("toto");
   }
 
   @override
