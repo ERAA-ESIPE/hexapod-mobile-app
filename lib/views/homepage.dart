@@ -20,9 +20,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final socket = new SocketService('192.168.1.24', 8000);
-
   String _ip, _port;
+
+  SocketService socket;
 
   void _read() async {
     var prefs = await SharedPreferences.getInstance();
@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _read();
+    socket = new SocketService(_ip, int.parse(_port));
     socket.initSocket();
   }
 
