@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   SocketService socket;
   String _ip;
   String _port;
-  final MASK = 0x1;
+  final int mask = 0x1;
 
   double _angleToRadians(double angle) => (pi / 180) * angle;
 
@@ -52,17 +52,17 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (MASK << position);
+    n = (n) | (mask << position);
     return n;
   }
 
-  _onChange(num degrees, num distance) {
-    num x = distance * cos(_angleToRadians(degrees));
-    num y = distance * sin(_angleToRadians(degrees));
+  _joystickMove(num degrees, num distance) {
+    num y = distance * cos(_angleToRadians(degrees));
+    num x = distance * sin(_angleToRadians(degrees));
 
-    print('x: $x');
-
-    print('y: $y');
+    
+    print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');
 
     int buttons = 0;
     int leftStickX = 0;
@@ -127,7 +127,9 @@ class _HomePageState extends State<HomePage> {
                 if (_ip.compareTo(newHost) != 0 ||
                     _port.compareTo(newPort) != 0) {
                   setState(() {
-                    socket.destroy();
+                    if (this.socket == null) {
+                      this.socket.destroy();
+                    }
                     _read();
                   });
                 } else {}
@@ -145,7 +147,7 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _onChange,
+      onDirectionChanged: _joystickMove,
     );
 
     var rightJoystick = new JoystickView(
@@ -153,32 +155,32 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _onChange,
+      onDirectionChanged: _joystickMove,
     );
 
     var leftPadButton = new List<PadButtonItem>();
     leftPadButton.add(
       new PadButtonItem(
         index: 3,
-        buttonImage: Image.asset("assets/right-arrow.png"),
+        buttonImage: Image.asset("assets/right-chevron.png"),
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 7,
-        buttonImage: Image.asset("assets/r2.png"),
+        buttonImage: Image.asset("assets/down-chevron.png"),
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
           index: 5,
-          buttonImage: Image.asset("assets/left-arrow.png"),
+          buttonImage: Image.asset("assets/left-chevron.png"),
           buttonText: "R1"),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 4,
-        buttonImage: Image.asset("assets/r1.png"),
+        buttonImage: Image.asset("assets/up-chevron.png"),
       ),
     );
 

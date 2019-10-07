@@ -1,6 +1,4 @@
 class Trame {
-  final int beginOctet = 0xFF;
-  final int endOctet = 0xFF;
   final int nopeOctet = 0x0;
 
   int leftStickX;
@@ -20,6 +18,6 @@ class Trame {
 
   @override
   String toString() {
-    return '$beginOctet | $leftStickX | $leftStickY | $rightStickX | $rightStickY | $buttons | $nopeOctet | $endOctet';
+    return 'FF|$leftStickX|$leftStickY|$rightStickX|$rightStickY|$buttons|$nopeOctet|FF';
   }
 }
