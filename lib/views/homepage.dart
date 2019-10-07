@@ -26,12 +26,14 @@ class _HomePageState extends State<HomePage> {
   String _port;
   final MASK = 0x1;
 
+  double _angleToRadians(double angle) => (pi / 180) * angle;
+
   void _read() async {
     var prefs = await SharedPreferences.getInstance();
     final portKey = 'port';
-    _port = prefs.getString(portKey);
+    _port = prefs.getString(portKey) ?? 'localhost';
     final ipKey = 'address';
-    _ip = prefs.getString(ipKey);
+    _ip = prefs.getString(ipKey) ?? '8000';
     this.socket = new SocketService(_ip, int.parse(_port));
     this.socket.initSocket();
   }
@@ -55,12 +57,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onChange(num degrees, num distance) {
-    num x = distance * sin(degrees);
-    num y = distance * -cos(degrees);
+    num x = distance * cos(_angleToRadians(degrees));
+    num y = distance * sin(_angleToRadians(degrees));
 
-    print('distance: $distance');
+    print('x: $x');
 
-    print('degress: $degrees');
+    print('y: $y');
 
     int buttons = 0;
     int leftStickX = 0;
