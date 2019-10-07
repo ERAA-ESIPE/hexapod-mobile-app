@@ -18,6 +18,8 @@ class Trame {
 
   @override
   String toString() {
-    return 'FF|$leftStickX|$leftStickY|$rightStickX|$rightStickY|$buttons|$nopeOctet|FF';
+    return 'FF' +
+        '$leftStickX$leftStickY$rightStickX$rightStickY$buttons$nopeOctet' +
+        'FF';
   }
 }

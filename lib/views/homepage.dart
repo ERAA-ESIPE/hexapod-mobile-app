@@ -4,11 +4,11 @@ import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
+import 'package:exapodpad/services/service.dart';
 import 'package:exapodpad/views/setting_view.dart';
 import 'package:exapodpad/views/trame.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:exapodpad/services/socketservice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +21,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  SocketService socket;
+  Service socket;
+
   String _ip;
   String _port;
   final int mask = 0x1;
@@ -36,8 +37,8 @@ class _HomePageState extends State<HomePage> {
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
     if (_port != null && _ip != null) {
-      this.socket = new SocketService(_ip, int.parse(_port));
-      this.socket.initSocket();
+      socket = new Service(_ip, int.parse(_port));
+      socket.initSocket();
     }
   }
 
@@ -55,22 +56,33 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (mask << position);
+    n = (n) | (mask << (8 - position));
     return n;
   }
 
-  _joystickMove(num degrees, num distance) {
+  _leftJoystickMove(num degrees, num distance) {
     num y = distance * cos(_angleToRadians(degrees));
     num x = distance * sin(_angleToRadians(degrees));
 
     print('dist: $distance ; degrees: $degrees');
     print('x: $x ; y: $y');
 
-    int leftStickX = 0;
-    int leftStickY = 0;
-    int rightStickX = 0;
-    int rightStickY = 0;
-    var trame = new Trame(leftStickX, leftStickY, rightStickX, rightStickY, 0);
+    int leftStickX = x;
+    int leftStickY = y;
+    var trame = new Trame(leftStickX, leftStickY, 0, 0, 0);
+    socket.sendMessage(trame.toString());
+  }
+
+  _rightJoystickMove(num degrees, num distance) {
+    num y = distance * cos(_angleToRadians(degrees));
+    num x = distance * sin(_angleToRadians(degrees));
+
+    print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');
+
+    int rightStickX = x;
+    int rightStickY = y;
+    var trame = new Trame(0, 0, rightStickX, rightStickY, 0);
     socket.sendMessage(trame.toString());
   }
 
@@ -130,7 +142,7 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _joystickMove,
+      onDirectionChanged: _leftJoystickMove,
       interval: Duration(
         microseconds: interval,
       ),
@@ -141,7 +153,7 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _joystickMove,
+      onDirectionChanged: _rightJoystickMove,
       interval: Duration(
         microseconds: interval,
       ),

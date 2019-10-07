@@ -19,11 +19,11 @@ class SocketService {
   }
 
   void sendMessage(String message) {
-    this.socket.setOption(SocketOption.tcpNoDelay, true);
-    this.socket.write(message + '\n');
+    socket.setOption(SocketOption.tcpNoDelay, true);
+    socket.write(message + '\n');
   }
 
   void destroy() {
-    this.socket.close();
+    socket.close();
   }
 }
