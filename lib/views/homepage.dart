@@ -25,17 +25,20 @@ class _HomePageState extends State<HomePage> {
   String _ip;
   String _port;
   final int mask = 0x1;
+  final int interval = 100; // Send trame each 100ms
 
   double _angleToRadians(double angle) => (pi / 180) * angle;
 
   void _read() async {
     var prefs = await SharedPreferences.getInstance();
     final portKey = 'port';
-    _port = prefs.getString(portKey) ?? 'localhost';
+    _port = prefs.getString(portKey);
     final ipKey = 'address';
-    _ip = prefs.getString(ipKey) ?? '8000';
-    this.socket = new SocketService(_ip, int.parse(_port));
-    this.socket.initSocket();
+    _ip = prefs.getString(ipKey);
+    if (_port != null && _ip != null) {
+      this.socket = new SocketService(_ip, int.parse(_port));
+      this.socket.initSocket();
+    }
   }
 
   @override
@@ -60,45 +63,25 @@ class _HomePageState extends State<HomePage> {
     num y = distance * cos(_angleToRadians(degrees));
     num x = distance * sin(_angleToRadians(degrees));
 
-    
     print('dist: $distance ; degrees: $degrees');
     print('x: $x ; y: $y');
 
-    int buttons = 0;
     int leftStickX = 0;
     int leftStickY = 0;
     int rightStickX = 0;
     int rightStickY = 0;
-    var trame =
-        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
-    socket.sendMessage(trame);
+    var trame = new Trame(leftStickX, leftStickY, rightStickX, rightStickY, 0);
+    socket.sendMessage(trame.toString());
   }
 
   _padPressed(int buttonIndex, Gestures gesture) {
     int buttons = buildButtonOctet(buttonIndex);
-    int leftStickX = 0;
-    int leftStickY = 0;
-    int rightStickX = 0;
-    int rightStickY = 0;
-    var trame =
-        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
-    socket.sendMessage(trame);
+    var trame = new Trame(0, 0, 0, 0, buttons);
+    socket.sendMessage(trame.toString());
   }
 
   @override
   Widget build(BuildContext context) {
-    final appBar = new AppBar(
-      //elevation: 0.1,
-      backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
-      title: new Text(widget.title),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.list),
-          onPressed: () {},
-        )
-      ],
-    );
-
     final makeBottom = new Container(
       height: 55.0,
       child: new BottomAppBar(
@@ -127,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                 if (_ip.compareTo(newHost) != 0 ||
                     _port.compareTo(newPort) != 0) {
                   setState(() {
-                    if (this.socket == null) {
+                    if (this.socket != null) {
                       this.socket.destroy();
                     }
                     _read();
@@ -148,6 +131,9 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
       onDirectionChanged: _joystickMove,
+      interval: Duration(
+        microseconds: interval,
+      ),
     );
 
     var rightJoystick = new JoystickView(
@@ -156,6 +142,9 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
       onDirectionChanged: _joystickMove,
+      interval: Duration(
+        microseconds: interval,
+      ),
     );
 
     var leftPadButton = new List<PadButtonItem>();
