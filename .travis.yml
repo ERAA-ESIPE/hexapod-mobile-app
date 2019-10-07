@@ -1,30 +1,42 @@
-os:
-  - linux
+os: linux
+language: android
+
+licenses:
+- android-sdk-preview-license-.+
+- android-sdk-license-.+
+- google-gdk-license-.+
+
+android:
+  components:
+  - tools
+  - platform-tools
+  - build-tools-28.0.3
+  - android-28 # match your targetVersion
+
+jdk: oraclejdk8
+
 sudo: false
+
 addons:
   apt:
+    # Flutter depends on /usr/lib/x86_64-linux-gnu/libstdc++.so.6 version GLIBCXX_3.4.18
     sources:
-      - ubuntu-toolchain-r-test
+    - ubuntu-toolchain-r-test
     packages:
-      - libstdc++6
-      - fonts-noto
-git:
-  depth: 3
-env:
-  - FLUTTER_VERSION=stable
-  - FLUTTER_VERSION=beta
-matrix:
-  allow_failures:
-    - env: FLUTTER_VERSION=beta
-before_script:
-  - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
-  - ./flutter/bin/flutter doctor
-script:
-  - ./flutter/bin/flutter build
+    - libstdc++6
+    - fonts-droid
 cache:
   directories:
-    - $HOME/shared/.pub-cache
+  - "$HOME/.pub-cache"
 
-# Only building master means that we don't run two builds for each pull request.
-#branches:
-  #only: [master]
+
+install:
+- git clone https://github.com/flutter/flutter.git -b stable --depth 1
+- export PATH=./flutter/bin:$PATH
+- flutter doctor
+
+script:
+- flutter packages get
+- flutter analyze --no-pub --no-current-package lib/ test/
+- flutter test --no-pub test/
+- flutter build apk
