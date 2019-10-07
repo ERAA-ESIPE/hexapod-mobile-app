@@ -32,6 +32,14 @@ class _SettingsPageState extends State<SettingsPage> {
     _read();
   }
 
+  void _save() async {
+    var prefs = await SharedPreferences.getInstance();
+    final portKey = 'port';
+    await prefs.setString(portKey, _port);
+    final ipKey = 'address';
+    await prefs.setString(ipKey, _ip);
+  }
+
   void _submit() async {
     if (_fbKey.currentState.saveAndValidate()) {
       var values = _fbKey.currentState.value;
@@ -47,44 +55,17 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _save() async {
-    var prefs = await SharedPreferences.getInstance();
-    final portKey = 'port';
-    await prefs.setString(portKey, _port);
-    final ipKey = 'address';
-    await prefs.setString(ipKey, _ip);
-    print('save: $_ip');
-    print('save: $_port');
-  }
-
   @override
   Widget build(BuildContext context) {
+    
     final appBar = new AppBar(
       backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
       title: new Text(widget.title),
-    );
-
-    final makeBottom = new Container(
-      height: 55.0,
-      child: new BottomAppBar(
-        color: Color.fromRGBO(58, 80, 86, 1.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            new IconButton(
-              icon: Icon(Icons.home, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(
-                  context,
-                );
-              },
-            ),
-            new IconButton(
-              icon: Icon(Icons.settings_applications, color: Colors.white),
-              onPressed: () {},
-            )
-          ],
-        ),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios),
+        onPressed: ()  {
+          Navigator.pop(context, '$_ip:$_port');
+        }
       ),
     );
 
