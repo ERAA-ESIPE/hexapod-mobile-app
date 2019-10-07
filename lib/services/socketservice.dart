@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:exapodpad/views/trame.dart';
-
 class SocketService {
   Socket socket;
   String host;
@@ -17,17 +15,15 @@ class SocketService {
   }
 
   void initSocket() async {
-    /* Read host and port from local storage */
-
     this.socket = await _getSocket();
   }
 
-  void sendMessage(Trame message) {
-    this.socket.write(message.toString());
-    this.socket.write('\n');
+  void sendMessage(String message) {
+    socket.setOption(SocketOption.tcpNoDelay, true);
+    socket.write(message + '\n');
   }
 
   void destroy() {
-    this.socket.close();
+    socket.close();
   }
 }

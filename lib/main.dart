@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 
 Future main() async {
   await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
+  );
   runApp(new MyApp());
 }
 

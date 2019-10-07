@@ -4,11 +4,11 @@ import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
+import 'package:exapodpad/services/service.dart';
 import 'package:exapodpad/views/setting_view.dart';
 import 'package:exapodpad/views/trame.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:exapodpad/services/socketservice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,10 +21,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  SocketService socket;
+  Service socket;
+
   String _ip;
   String _port;
-  final MASK = 0x1;
+  final int mask = 0x1;
+  final int interval = 100; // Send trame each 100ms
+
+  double _angleToRadians(double angle) => (pi / 180) * angle;
 
   void _read() async {
     var prefs = await SharedPreferences.getInstance();
@@ -32,8 +36,10 @@ class _HomePageState extends State<HomePage> {
     _port = prefs.getString(portKey);
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
-    this.socket = new SocketService(_ip, int.parse(_port));
-    this.socket.initSocket();
+    if (_port != null && _ip != null) {
+      socket = new Service(_ip, int.parse(_port));
+      socket.initSocket();
+    }
   }
 
   @override
@@ -50,53 +56,44 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (MASK << position);
+    n = (n) | (mask << (7 - position));
     return n;
   }
 
-  _onChange(num degrees, num distance) {
-    num x = distance * sin(degrees);
-    num y = distance * -cos(degrees);
+  _leftJoystickMove(num degrees, num distance) {
+    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
+    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
 
-    print('distance: $distance');
+    /*print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');*/
 
-    print('degress: $degrees');
+    int leftStickX = x.toInt();
+    int leftStickY = y.toInt();
+    var trame = new Trame(leftStickX, leftStickY, 0, 0, 0);
+    socket.sendMessage(trame.toString());
+  }
 
-    int buttons = 0;
-    int leftStickX = 0;
-    int leftStickY = 0;
-    int rightStickX = 0;
-    int rightStickY = 0;
-    var trame =
-        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
-    socket.sendMessage(trame);
+  _rightJoystickMove(num degrees, num distance) {
+    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
+    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
+
+    /*print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');*/
+
+    int rightStickX = x.toInt();
+    int rightStickY = y.toInt();
+    var trame = new Trame(0, 0, rightStickX, rightStickY, 0);
+    socket.sendMessage(trame.toString());
   }
 
   _padPressed(int buttonIndex, Gestures gesture) {
     int buttons = buildButtonOctet(buttonIndex);
-    int leftStickX = 0;
-    int leftStickY = 0;
-    int rightStickX = 0;
-    int rightStickY = 0;
-    var trame =
-        new Trame(leftStickX, leftStickY, rightStickX, rightStickY, buttons);
-    socket.sendMessage(trame);
+    var trame = new Trame(0, 0, 0, 0, buttons);
+    socket.sendMessage(trame.toString());
   }
 
   @override
   Widget build(BuildContext context) {
-    final appBar = new AppBar(
-      //elevation: 0.1,
-      backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
-      title: new Text(widget.title),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.list),
-          onPressed: () {},
-        )
-      ],
-    );
-
     final makeBottom = new Container(
       height: 55.0,
       child: new BottomAppBar(
@@ -125,10 +122,18 @@ class _HomePageState extends State<HomePage> {
                 if (_ip.compareTo(newHost) != 0 ||
                     _port.compareTo(newPort) != 0) {
                   setState(() {
-                    socket.destroy();
+                    if (socket != null) {
+                      socket.destroy();
+                    }
                     _read();
                   });
-                } else {}
+                }
+                if (socket == null) {
+                  setState(() {
+                    socket = new Service(_ip, int.parse(_port));
+                    socket.initSocket();
+                  });
+                }
               },
             )
           ],
@@ -143,7 +148,10 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _onChange,
+      onDirectionChanged: _leftJoystickMove,
+      interval: Duration(
+        microseconds: interval,
+      ),
     );
 
     var rightJoystick = new JoystickView(
@@ -151,32 +159,35 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _onChange,
+      onDirectionChanged: _rightJoystickMove,
+      interval: Duration(
+        microseconds: interval,
+      ),
     );
 
     var leftPadButton = new List<PadButtonItem>();
     leftPadButton.add(
       new PadButtonItem(
         index: 3,
-        buttonImage: Image.asset("assets/right-arrow.png"),
+        buttonImage: Image.asset("assets/right-chevron.png"),
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 7,
-        buttonImage: Image.asset("assets/r2.png"),
+        buttonImage: Image.asset("assets/down-chevron.png"),
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
           index: 5,
-          buttonImage: Image.asset("assets/left-arrow.png"),
+          buttonImage: Image.asset("assets/left-chevron.png"),
           buttonText: "R1"),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 4,
-        buttonImage: Image.asset("assets/r1.png"),
+        buttonImage: Image.asset("assets/up-chevron.png"),
       ),
     );
 
