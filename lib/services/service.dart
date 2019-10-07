@@ -12,12 +12,16 @@ class Service {
   }
 
   Future _getSocket() async {
-    return await socket.createSocket(host, port);
+    return await socket.createSocket(host, port, timeout: 0);
   }
 
   void initSocket() async {
     _getSocket();
-    await socket.tryConnect();
+    socket
+        .tryConnect()
+        .then((result) => print('connected'))
+        .catchError((err) => print('connection error: $err'));
+
     socket.connectListener((data) {
       print('connect listener data:$data');
     });

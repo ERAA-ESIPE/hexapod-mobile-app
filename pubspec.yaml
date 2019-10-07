@@ -28,6 +28,7 @@ dependencies:
   shared_preferences: ^0.5.3+4
   material_design_icons_flutter: ^3.2.4495
   flutter_socket_plugin: ^1.0.0
+  hex: ^0.1.2
 
 dev_dependencies:
   flutter_test:

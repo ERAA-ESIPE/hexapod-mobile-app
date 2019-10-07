@@ -1,3 +1,5 @@
+import "package:hex/hex.dart";
+
 class Trame {
   final int nopeOctet = 0x0;
 
@@ -18,8 +20,18 @@ class Trame {
 
   @override
   String toString() {
+    String hexLeftStickX = HEX.encode([leftStickX]);
+    String hexLeftStickY = HEX.encode([leftStickY]);
+    String hexRightStickX = HEX.encode([rightStickX]);
+    String hexRightStickY = HEX.encode([rightStickY]);
+    String hexButtons = HEX.encode([buttons]);
+
     return 'FF' +
-        '$leftStickX$leftStickY$rightStickX$rightStickY$buttons$nopeOctet' +
+        hexLeftStickX +
+        hexLeftStickY +
+        hexRightStickX +
+        hexRightStickY +
+        hexButtons +
         'FF';
   }
 }

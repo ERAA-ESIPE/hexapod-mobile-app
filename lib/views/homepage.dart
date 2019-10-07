@@ -56,32 +56,32 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (mask << (8 - position));
+    n = (n) | (mask << (7 - position));
     return n;
   }
 
   _leftJoystickMove(num degrees, num distance) {
-    num y = distance * cos(_angleToRadians(degrees));
-    num x = distance * sin(_angleToRadians(degrees));
+    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
+    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
 
-    print('dist: $distance ; degrees: $degrees');
-    print('x: $x ; y: $y');
+    /*print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');*/
 
-    int leftStickX = x;
-    int leftStickY = y;
+    int leftStickX = x.toInt();
+    int leftStickY = y.toInt();
     var trame = new Trame(leftStickX, leftStickY, 0, 0, 0);
     socket.sendMessage(trame.toString());
   }
 
   _rightJoystickMove(num degrees, num distance) {
-    num y = distance * cos(_angleToRadians(degrees));
-    num x = distance * sin(_angleToRadians(degrees));
+    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
+    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
 
-    print('dist: $distance ; degrees: $degrees');
-    print('x: $x ; y: $y');
+    /*print('dist: $distance ; degrees: $degrees');
+    print('x: $x ; y: $y');*/
 
-    int rightStickX = x;
-    int rightStickY = y;
+    int rightStickX = x.toInt();
+    int rightStickY = y.toInt();
     var trame = new Trame(0, 0, rightStickX, rightStickY, 0);
     socket.sendMessage(trame.toString());
   }
@@ -122,12 +122,18 @@ class _HomePageState extends State<HomePage> {
                 if (_ip.compareTo(newHost) != 0 ||
                     _port.compareTo(newPort) != 0) {
                   setState(() {
-                    if (this.socket != null) {
-                      this.socket.destroy();
+                    if (socket != null) {
+                      socket.destroy();
                     }
                     _read();
                   });
-                } else {}
+                }
+                if (socket == null) {
+                  setState(() {
+                    socket = new Service(_ip, int.parse(_port));
+                    socket.initSocket();
+                  });
+                }
               },
             )
           ],
