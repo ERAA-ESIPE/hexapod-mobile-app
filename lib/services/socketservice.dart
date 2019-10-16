@@ -15,12 +15,13 @@ class SocketService {
   }
 
   void initSocket() async {
-    this.socket = await _getSocket();
+    socket = await _getSocket();
+    socket.setOption(SocketOption.tcpNoDelay, true);
   }
 
   void sendMessage(String message) {
-    socket.setOption(SocketOption.tcpNoDelay, true);
-    socket.write(message + '\n');
+    socket.write(message);
+    socket.writeln();
   }
 
   void destroy() {

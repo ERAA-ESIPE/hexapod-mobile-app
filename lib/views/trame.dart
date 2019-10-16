@@ -1,7 +1,8 @@
-import "package:hex/hex.dart";
+import 'dart:convert' show utf8;
 
 class Trame {
   final int nopeOctet = 0x0;
+  final int startAndEndOctet = 255;
 
   int leftStickX;
   int leftStickY;
@@ -18,20 +19,23 @@ class Trame {
     this.buttons = buttons;
   }
 
+  _toUTF8(String args) {
+    return utf8.encode(args);
+  }
+
   @override
   String toString() {
-    String hexLeftStickX = HEX.encode([leftStickX]);
-    String hexLeftStickY = HEX.encode([leftStickY]);
-    String hexRightStickX = HEX.encode([rightStickX]);
-    String hexRightStickY = HEX.encode([rightStickY]);
-    String hexButtons = HEX.encode([buttons]);
+    var converted = startAndEndOctet.toRadixString(16) +
+        leftStickX.toRadixString(16) +
+        leftStickY.toRadixString(16) +
+        rightStickX.toRadixString(16) +
+        rightStickY.toRadixString(16) +
+        buttons.toRadixString(16) +
+        nopeOctet.toRadixString(16) +
+        startAndEndOctet.toRadixString(16);
 
-    return 'FF' +
-        hexLeftStickX +
-        hexLeftStickY +
-        hexRightStickX +
-        hexRightStickY +
-        hexButtons +
-        'FF';
+    var utf8Converted = _toUTF8(converted);
+
+    return utf8Converted.toString();
   }
 }

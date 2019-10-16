@@ -4,7 +4,7 @@ import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
-import 'package:exapodpad/services/service.dart';
+import 'package:exapodpad/services/socketservice.dart';
 import 'package:exapodpad/views/setting_view.dart';
 import 'package:exapodpad/views/trame.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Service socket;
+  SocketService socket;
 
   String _ip;
   String _port;
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
     if (_port != null && _ip != null) {
-      socket = new Service(_ip, int.parse(_port));
+      socket = new SocketService(_ip, int.parse(_port));
       socket.initSocket();
     }
   }
@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (mask << (7 - position));
+    n = (n) | (mask << position);
     return n;
   }
 
@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                 }
                 if (socket == null) {
                   setState(() {
-                    socket = new Service(_ip, int.parse(_port));
+                    socket = new SocketService(_ip, int.parse(_port));
                     socket.initSocket();
                   });
                 }
