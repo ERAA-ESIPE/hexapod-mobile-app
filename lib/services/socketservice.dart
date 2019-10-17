@@ -16,14 +16,18 @@ class SocketService {
 
   void initSocket() async {
     socket = await _getSocket();
-    socket.setOption(SocketOption.tcpNoDelay, true);
+    //socket.setOption(SocketOption.tcpNoDelay, true);
   }
 
   void sendMessage(String message) {
     socket.write(message);
-    socket.writeln();
   }
 
+
+  void sendRawMessage(List<int> ints) {
+    socket.writeAll(ints);
+  }
+  
   void destroy() {
     socket.close();
   }

@@ -56,7 +56,8 @@ class _HomePageState extends State<HomePage> {
 
   int buildButtonOctet(int position) {
     int n = 0x0;
-    n = (n) | (mask << position);
+    n = (n) | (mask << (position));
+    print('n: $n');
     return n;
   }
 
@@ -90,6 +91,7 @@ class _HomePageState extends State<HomePage> {
     int buttons = buildButtonOctet(buttonIndex);
     var trame = new Trame(0, 0, 0, 0, buttons);
     socket.sendMessage(trame.toString());
+    print('stringqcssq:' + trame.toString());
   }
 
   @override
