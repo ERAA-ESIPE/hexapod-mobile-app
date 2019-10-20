@@ -32,7 +32,7 @@ class Trame {
 
   @override
   String toString() {
-    List<int> listInts = [
+    /*  List<int> listInts = [
       startAndEndOctet,
       leftStickX,
       leftStickY,
@@ -42,9 +42,9 @@ class Trame {
       nopeOctet,
       startAndEndOctet,
     ];
-
     var charChodes = new String.fromCharCodes(listInts).trim();
+    */
 
-    return charChodes;
+    return '$startAndEndOctet;$leftStickX;$leftStickY;$rightStickX;$rightStickY;$buttons;$nopeOctet;$startAndEndOctet';
   }
 }

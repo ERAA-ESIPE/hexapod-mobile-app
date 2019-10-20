@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 Future main() async {
-  await SystemChrome.setPreferredOrientations(
+  SystemChrome.setPreferredOrientations(
     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
-  );
-  runApp(new MyApp());
+  ).then((onValue) => runApp(new MyApp()));
 }
 
 class MyApp extends StatelessWidget {
