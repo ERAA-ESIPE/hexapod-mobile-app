@@ -10,14 +10,15 @@ Future main() async {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ExapodPad',
+      title: 'HexapodPad',
       theme: new ThemeData(
         primaryColor: Color.fromRGBO(58, 66, 86, 1.0),
       ),
-      home: new HomePage(title: "Exapod"),
+      home: new HomePage(title: "Hexapod"),
       debugShowCheckedModeBanner: false,
     );
   }

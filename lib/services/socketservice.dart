@@ -23,11 +23,10 @@ class SocketService {
     socket.write(message);
   }
 
-
   void sendRawMessage(List<int> ints) {
     socket.writeAll(ints);
   }
-  
+
   void destroy() {
     socket.close();
   }

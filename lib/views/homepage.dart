@@ -37,8 +37,13 @@ class _HomePageState extends State<HomePage> {
     final ipKey = 'address';
     _ip = prefs.getString(ipKey);
     if (_port != null && _ip != null) {
+      print("addr" + _ip);
+      print("port" + _port);
       socket = new SocketService(_ip, int.parse(_port));
       socket.initSocket();
+    } else {
+      print("host and port are null");
+      socket = new SocketService(_ip, int.parse(_port));
     }
   }
 
