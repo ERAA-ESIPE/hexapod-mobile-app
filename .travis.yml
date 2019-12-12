@@ -7,4 +7,5 @@ before_install:
   - docker pull cirrusci/flutter
 
 script:
+  - chmod -R 777 ExapodApp/
   - docker run --rm -it -v ${PWD}:/build --workdir /build cirrusci/flutter:stable flutter build apk
