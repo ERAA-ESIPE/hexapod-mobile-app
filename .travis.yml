@@ -36,7 +36,5 @@ install:
 - flutter doctor
 
 script:
-- flutter packages get
-- flutter analyze --no-pub --no-current-package lib/ test/
-- flutter test --no-pub test/
-- flutter build apk
+- chmod u+x script.sh
+- ./script.sh
