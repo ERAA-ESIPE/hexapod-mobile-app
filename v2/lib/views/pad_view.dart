@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
@@ -11,7 +10,7 @@ class PadView extends StatefulWidget {
 
   final String title;
   final String ip;
-  final int port;
+  final String port;
 
   @override
   _PadViewState createState() => _PadViewState();
@@ -20,15 +19,10 @@ class PadView extends StatefulWidget {
 class _PadViewState extends State<PadView> {
   PadController controller;
 
-  final int mask = 0x1;
-  final int interval = 100; // Send trame each 100ms
-
-  double _angleToRadians(double angle) => (pi / 180) * angle;
-
   @override
   void initState() {
     super.initState();
-    controller = new PadController(widget.ip, widget.port);
+    controller = new PadController(widget.ip, int.parse(widget.port));
   }
 
   @override
@@ -39,6 +33,7 @@ class _PadViewState extends State<PadView> {
 
   @override
   Widget build(BuildContext context) {
+    print('ip: ' + widget.ip + '; port: ' + widget.port);
     final footer = new Container(
       height: 55.0,
       child: new BottomAppBar(
@@ -55,16 +50,16 @@ class _PadViewState extends State<PadView> {
       ),
     );
 
-    var componentSize = (MediaQuery.of(context).size.height / 2.5);
+    var componentSize = (MediaQuery.of(context).size.height / 2.8);
 
     var leftJoystick = new JoystickView(
       size: componentSize,
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      // onDirectionChanged: _leftJoystickMove,
-      interval: Duration(
-        microseconds: interval,
+      onDirectionChanged: controller.leftJoystickMove(),
+      interval: new Duration(
+        microseconds: PadController.interval,
       ),
     );
 
@@ -73,9 +68,9 @@ class _PadViewState extends State<PadView> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      //onDirectionChanged: _rightJoystickMove,
-      interval: Duration(
-        microseconds: interval,
+      onDirectionChanged: controller.rightJoystickMove(),
+      interval: new Duration(
+        microseconds: PadController.interval,
       ),
     );
 
@@ -109,7 +104,7 @@ class _PadViewState extends State<PadView> {
       size: componentSize,
       backgroundPadButtonsColor: Colors.black45,
       buttons: leftPadButton,
-      // padButtonPressedCallback: _padPressed,
+      padButtonPressedCallback: controller.padPressed,
     );
 
     var rightPadButton = new List<PadButtonItem>();
@@ -142,7 +137,7 @@ class _PadViewState extends State<PadView> {
       size: componentSize,
       backgroundPadButtonsColor: Colors.black45,
       buttons: rightPadButton,
-      //padButtonPressedCallback: _padPressed,
+      padButtonPressedCallback: controller.padPressed,
     );
 
     final child = new Column(
@@ -188,13 +183,14 @@ class _PadViewState extends State<PadView> {
 
     return new SafeArea(
       child: new Scaffold(
-        //appBar: appBar,
+        bottomNavigationBar: footer,
         body: new Container(
-          //color: Color.fromRGBO(58, 66, 86, 1.0),
           color: Colors.grey,
           child: child,
+          padding: const EdgeInsets.all(
+            8.0,
+          ),
         ),
-        bottomNavigationBar: footer,
       ),
     );
   }

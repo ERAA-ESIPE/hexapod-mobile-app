@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 class SocketService {
   Socket socket;
@@ -8,19 +9,17 @@ class SocketService {
   SocketService(String host, int port) {
     this.host = host;
     this.port = port;
+    _initSocket();
   }
 
-  Future<Socket> _getSocket() async {
-    return await Socket.connect(host, port);
-  }
-
-  void initSocket() async {
-    socket = await _getSocket();
+  void _initSocket() async {
+    socket = await Socket.connect(host, port);
     //socket.setOption(SocketOption.tcpNoDelay, true);
   }
 
   void sendMessage(String message) {
-    socket.write(message);
+    var msg = utf8.encode(message);
+    socket.write(msg);
   }
 
   void sendRawMessage(List<int> ints) {

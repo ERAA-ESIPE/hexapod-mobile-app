@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/judi/devops/hexapod/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+            "outputFile": "/home/judi/devops/hexapod-app/v2/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
             "map": [
                 {
-                    "source": "/home/judi/devops/hexapod/android/app/src/main/res/values/styles.xml",
+                    "source": "/home/judi/devops/hexapod-app/v2/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

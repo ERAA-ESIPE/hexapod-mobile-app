@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/home/judi/devops/hexapod-app/build/shared_preferences_macos/intermediates/res/merged/release/layout-v21/notification_action.xml",
+        "source": "/home/judi/.gradle/caches/transforms-1/files-1.1/core-1.0.0-rc01.aar/3a4c217d7ca9c57856bd27b964a9f6cf/res/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "/home/judi/devops/hexapod-app/build/shared_preferences_macos/intermediates/res/merged/release/layout-v21/notification_action_tombstone.xml",
+        "source": "/home/judi/.gradle/caches/transforms-1/files-1.1/core-1.0.0-rc01.aar/3a4c217d7ca9c57856bd27b964a9f6cf/res/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/home/judi/devops/hexapod-app/build/shared_preferences_macos/intermediates/res/merged/release/layout-v21/notification_template_icon_group.xml",
+        "source": "/home/judi/.gradle/caches/transforms-1/files-1.1/core-1.0.0-rc01.aar/3a4c217d7ca9c57856bd27b964a9f6cf/res/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "/home/judi/devops/hexapod-app/build/shared_preferences_macos/intermediates/res/merged/release/layout-v21/notification_template_custom_big.xml",
+        "source": "/home/judi/.gradle/caches/transforms-1/files-1.1/core-1.0.0-rc01.aar/3a4c217d7ca9c57856bd27b964a9f6cf/res/layout-v21/notification_template_custom_big.xml"
+    }
+]

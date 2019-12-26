@@ -95,19 +95,6 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-    final submit = new Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        new Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: RaisedButton(
-            onPressed: _submit,
-            child: new Text('Gooo'),
-          ),
-        )
-      ],
-    );
-
     return new SafeArea(
       child: new Scaffold(
         resizeToAvoidBottomPadding: false,
@@ -122,7 +109,24 @@ class _HomeViewState extends State<HomeView> {
               return new Column(
                 children: <Widget>[
                   _form(snapshot.data[ipKey], snapshot.data[portKey]),
-                  submit,
+                  new Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new RaisedButton(
+                      onPressed: _submit,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(10.0),
+                        side: new BorderSide(
+                          color: Color.fromRGBO(58, 80, 86, 1.0),
+                        ),
+                      ),
+                      child: new Text(
+                        'Gooo'.toUpperCase(),
+                        style: new TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               );
             } else {
