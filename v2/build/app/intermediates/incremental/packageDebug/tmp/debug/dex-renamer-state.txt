@@ -1,0 +1,4 @@
+#Thu Dec 26 14:06:26 CET 2019
+base.0=/home/judi/devops/hexapod/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
