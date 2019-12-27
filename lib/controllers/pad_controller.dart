@@ -47,39 +47,42 @@ class PadController {
 
   dispose() {
     socketService?.destroy();
+    _bzero();
+    socketService = null;
   }
 
-  work() {
+  sendData() {
     socketService?.sendMessage(_buildMessage());
     _bzero();
   }
 
   String _buildMessage() {
-    return ('0X' +
-                startAndEndOctet.toRadixString(radix) +
-                ';' +
-                '0X' +
-                leftStickX.toRadixString(radix) +
-                ';' +
-                '0X' +
-                leftStickY.toRadixString(radix) +
-                ';' +
-                '0X' +
-                rightStickX.toRadixString(radix) +
-                ';' +
-                '0X' +
-                rightStickY.toRadixString(radix) +
-                ';' +
-                '0X' +
-                buttons.toRadixString(radix) +
-                ';' +
-                '0X' +
-                nopeOctet.toRadixString(radix) +
-                ';' +
-                '0X' +
-                startAndEndOctet.toRadixString(radix))
-            .toUpperCase() +
-        '\n';
+    var separator = ';';
+    var buffer = new StringBuffer();
+    buffer.write(startAndEndOctet.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(leftStickX.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(leftStickY.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(rightStickX.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(rightStickY.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(buttons.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(nopeOctet.toRadixString(radix));
+    buffer.write(separator);
+
+    buffer.write(startAndEndOctet.toRadixString(radix));
+    buffer.writeln();
+    return buffer.toString().toUpperCase();
   }
 
   double _angleToRadians(double angle) => (pi / 180) * angle;

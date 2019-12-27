@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
@@ -29,7 +28,7 @@ class _PadViewState extends State<PadView> {
     Timer.periodic(
       Duration(milliseconds: PadController.interval),
       (timer) {
-        controller.work();
+        controller.sendData();
       },
     );
   }
@@ -42,7 +41,6 @@ class _PadViewState extends State<PadView> {
 
   @override
   Widget build(BuildContext context) {
-    print('ip: ' + widget.ip + '; port: ' + widget.port);
     final footer = new Container(
       height: 55.0,
       child: new BottomAppBar(
@@ -52,7 +50,10 @@ class _PadViewState extends State<PadView> {
           children: <Widget>[
             new IconButton(
               icon: Icon(Icons.home, color: Colors.white),
-              onPressed: () {},
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(context);
+              },
             ),
           ],
         ),

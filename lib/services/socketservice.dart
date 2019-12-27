@@ -26,10 +26,6 @@ class SocketService {
     socket?.add(msg);
   }
 
-  void sendRawMessage(List<int> ints) {
-    socket?.writeAll(ints);
-  }
-
   void destroy() {
     socket?.close();
   }
