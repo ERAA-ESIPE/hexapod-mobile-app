@@ -1,100 +1,47 @@
-import 'dart:math';
+import 'dart:async';
 
-import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
-import 'package:exapodpad/services/service.dart';
-import 'package:exapodpad/views/setting_view.dart';
-import 'package:exapodpad/views/trame.dart';
+import 'package:hexapod/controllers/pad_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class PadView extends StatefulWidget {
+  PadView({Key key, this.title, this.ip, this.port}) : super(key: key);
 
   final String title;
+  final String ip;
+  final String port;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _PadViewState createState() => _PadViewState();
 }
 
-class _HomePageState extends State<HomePage> {
-  Service socket;
-
-  String _ip;
-  String _port;
-  final int mask = 0x1;
-  final int interval = 100; // Send trame each 100ms
-
-  double _angleToRadians(double angle) => (pi / 180) * angle;
-
-  void _read() async {
-    var prefs = await SharedPreferences.getInstance();
-    final portKey = 'port';
-    _port = prefs.getString(portKey);
-    final ipKey = 'address';
-    _ip = prefs.getString(ipKey);
-    if (_port != null && _ip != null) {
-      socket = new Service(_ip, int.parse(_port));
-      socket.initSocket();
-    }
-  }
+class _PadViewState extends State<PadView> {
+  PadController controller;
 
   @override
   void initState() {
     super.initState();
-    _read();
+    controller = new PadController(widget.ip, int.parse(widget.port));
+    Timer.periodic(
+      Duration(milliseconds: PadController.interval),
+      (timer) {
+        controller.sendData();
+      },
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-    socket.destroy();
-  }
-
-  int buildButtonOctet(int position) {
-    int n = 0x0;
-    n = (n) | (mask << (7 - position));
-    return n;
-  }
-
-  _leftJoystickMove(num degrees, num distance) {
-    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
-    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
-
-    /*print('dist: $distance ; degrees: $degrees');
-    print('x: $x ; y: $y');*/
-
-    int leftStickX = x.toInt();
-    int leftStickY = y.toInt();
-    var trame = new Trame(leftStickX, leftStickY, 0, 0, 0);
-    socket.sendMessage(trame.toString());
-  }
-
-  _rightJoystickMove(num degrees, num distance) {
-    num y = ((distance * cos(_angleToRadians(degrees))) * 235) % 235;
-    num x = ((distance * sin(_angleToRadians(degrees))) * 235) % 235;
-
-    /*print('dist: $distance ; degrees: $degrees');
-    print('x: $x ; y: $y');*/
-
-    int rightStickX = x.toInt();
-    int rightStickY = y.toInt();
-    var trame = new Trame(0, 0, rightStickX, rightStickY, 0);
-    socket.sendMessage(trame.toString());
-  }
-
-  _padPressed(int buttonIndex, Gestures gesture) {
-    int buttons = buildButtonOctet(buttonIndex);
-    var trame = new Trame(0, 0, 0, 0, buttons);
-    socket.sendMessage(trame.toString());
+    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final makeBottom = new Container(
+    final footer = new Container(
       height: 55.0,
       child: new BottomAppBar(
         color: Color.fromRGBO(58, 80, 86, 1.0),
@@ -103,55 +50,24 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             new IconButton(
               icon: Icon(Icons.home, color: Colors.white),
-              onPressed: () {},
-            ),
-            new IconButton(
-              icon: Icon(Icons.settings_applications, color: Colors.white),
-              onPressed: () async {
-                var result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SettingsPage(title: "Settings"),
-                  ),
-                );
-
-                var splited = result?.toString()?.split(":");
-                var newHost = splited[0];
-                var newPort = splited[1];
-
-                if (_ip.compareTo(newHost) != 0 ||
-                    _port.compareTo(newPort) != 0) {
-                  setState(() {
-                    if (socket != null) {
-                      socket.destroy();
-                    }
-                    _read();
-                  });
-                }
-                if (socket == null) {
-                  setState(() {
-                    socket = new Service(_ip, int.parse(_port));
-                    socket.initSocket();
-                  });
-                }
+              onPressed: () {
+                controller.dispose();
+                Navigator.pop(context);
               },
-            )
+            ),
           ],
         ),
       ),
     );
 
-    var componentSize = (MediaQuery.of(context).size.height / 2.5);
+    var componentSize = (MediaQuery.of(context).size.height / 2.8);
 
     var leftJoystick = new JoystickView(
       size: componentSize,
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _leftJoystickMove,
-      interval: Duration(
-        microseconds: interval,
-      ),
+      onDirectionChanged: controller.leftJoystickMove,
     );
 
     var rightJoystick = new JoystickView(
@@ -159,10 +75,7 @@ class _HomePageState extends State<HomePage> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: _rightJoystickMove,
-      interval: Duration(
-        microseconds: interval,
-      ),
+      onDirectionChanged: controller.rightJoystickMove,
     );
 
     var leftPadButton = new List<PadButtonItem>();
@@ -195,7 +108,7 @@ class _HomePageState extends State<HomePage> {
       size: componentSize,
       backgroundPadButtonsColor: Colors.black45,
       buttons: leftPadButton,
-      padButtonPressedCallback: _padPressed,
+      padButtonPressedCallback: controller.padPressed,
     );
 
     var rightPadButton = new List<PadButtonItem>();
@@ -228,10 +141,10 @@ class _HomePageState extends State<HomePage> {
       size: componentSize,
       backgroundPadButtonsColor: Colors.black45,
       buttons: rightPadButton,
-      padButtonPressedCallback: _padPressed,
+      padButtonPressedCallback: controller.padPressed,
     );
 
-    final child = new Column(
+    final _column = new Column(
       children: <Widget>[
         new Row(
           mainAxisSize: MainAxisSize.max,
@@ -274,13 +187,14 @@ class _HomePageState extends State<HomePage> {
 
     return new SafeArea(
       child: new Scaffold(
-        //appBar: appBar,
+        bottomNavigationBar: footer,
         body: new Container(
-          //color: Color.fromRGBO(58, 66, 86, 1.0),
           color: Colors.grey,
-          child: child,
+          child: _column,
+          padding: EdgeInsets.all(
+            8.0,
+          ),
         ),
-        bottomNavigationBar: makeBottom,
       ),
     );
   }

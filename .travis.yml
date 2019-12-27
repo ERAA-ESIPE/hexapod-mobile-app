@@ -1,42 +1,10 @@
 os: linux
-language: android
 
-licenses:
-- android-sdk-preview-license-.+
-- android-sdk-license-.+
-- google-gdk-license-.+
+services:
+  - docker
 
-android:
-  components:
-  - tools
-  - platform-tools
-  - build-tools-28.0.3
-  - android-28 # match your targetVersion
-
-jdk: oraclejdk8
-
-sudo: false
-
-addons:
-  apt:
-    # Flutter depends on /usr/lib/x86_64-linux-gnu/libstdc++.so.6 version GLIBCXX_3.4.18
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - libstdc++6
-    - fonts-droid
-cache:
-  directories:
-  - "$HOME/.pub-cache"
-
-
-install:
-- git clone https://github.com/flutter/flutter.git -b stable --depth 1
-- export PATH=./flutter/bin:$PATH
-- flutter doctor
+before_install:
+  - docker pull cirrusci/flutter:stable
 
 script:
-- flutter packages get
-- flutter analyze --no-pub --no-current-package lib/ test/
-- flutter test --no-pub test/
-- flutter build apk
+  - docker run --rm -it -v ${PWD} --workdir /build cirrusci/flutter:stable flutter build apk
