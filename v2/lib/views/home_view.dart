@@ -41,7 +41,7 @@ class _HomeViewState extends State<HomeView> {
       );
       Navigator.push(
         context,
-        MaterialPageRoute(
+        new MaterialPageRoute(
           builder: (context) => new PadView(title: "Pad", ip: _ip, port: _port),
         ),
       );
@@ -109,24 +109,29 @@ class _HomeViewState extends State<HomeView> {
               return new Column(
                 children: <Widget>[
                   _form(snapshot.data[ipKey], snapshot.data[portKey]),
+                  new SizedBox(
+                    height: 20,
+                  ),
                   new Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: new RaisedButton(
+                    child: new MaterialButton(
                       onPressed: _submit,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0),
+                      color: Color.fromARGB(255, 207, 207, 207),
+                      height: 100,
+                      minWidth: 200,
+                      shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30.0),
                         side: new BorderSide(
                           color: Color.fromRGBO(58, 80, 86, 1.0),
                         ),
                       ),
-                      child: new Text(
-                        'Gooo'.toUpperCase(),
-                        style: new TextStyle(
-                          fontSize: 20,
-                        ),
+                      child: Image.asset(
+                        'assets/startup.png',
+                        width: 150,
+                        height: 150,
                       ),
                     ),
-                  )
+                  ),
                 ],
               );
             } else {

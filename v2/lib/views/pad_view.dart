@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
@@ -23,6 +26,12 @@ class _PadViewState extends State<PadView> {
   void initState() {
     super.initState();
     controller = new PadController(widget.ip, int.parse(widget.port));
+    Timer.periodic(
+      Duration(milliseconds: PadController.interval),
+      (timer) {
+        controller.work();
+      },
+    );
   }
 
   @override
@@ -57,10 +66,7 @@ class _PadViewState extends State<PadView> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: controller.leftJoystickMove(),
-      interval: new Duration(
-        microseconds: PadController.interval,
-      ),
+      onDirectionChanged: controller.leftJoystickMove,
     );
 
     var rightJoystick = new JoystickView(
@@ -68,10 +74,7 @@ class _PadViewState extends State<PadView> {
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
-      onDirectionChanged: controller.rightJoystickMove(),
-      interval: new Duration(
-        microseconds: PadController.interval,
-      ),
+      onDirectionChanged: controller.rightJoystickMove,
     );
 
     var leftPadButton = new List<PadButtonItem>();
@@ -140,7 +143,7 @@ class _PadViewState extends State<PadView> {
       padButtonPressedCallback: controller.padPressed,
     );
 
-    final child = new Column(
+    final _column = new Column(
       children: <Widget>[
         new Row(
           mainAxisSize: MainAxisSize.max,
@@ -186,8 +189,8 @@ class _PadViewState extends State<PadView> {
         bottomNavigationBar: footer,
         body: new Container(
           color: Colors.grey,
-          child: child,
-          padding: const EdgeInsets.all(
+          child: _column,
+          padding: EdgeInsets.all(
             8.0,
           ),
         ),

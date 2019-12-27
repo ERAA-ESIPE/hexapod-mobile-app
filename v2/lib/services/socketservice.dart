@@ -13,20 +13,24 @@ class SocketService {
   }
 
   void _initSocket() async {
-    socket = await Socket.connect(host, port);
-    //socket.setOption(SocketOption.tcpNoDelay, true);
+    try {
+      socket = await Socket.connect(host, port);
+      //socket.setOption(SocketOption.tcpNoDelay, true);
+    } on SocketException catch (e) {
+      throw new AssertionError(e);
+    }
   }
 
   void sendMessage(String message) {
     var msg = utf8.encode(message);
-    socket.write(msg);
+    socket?.add(msg);
   }
 
   void sendRawMessage(List<int> ints) {
-    socket.writeAll(ints);
+    socket?.writeAll(ints);
   }
 
   void destroy() {
-    socket.close();
+    socket?.close();
   }
 }
