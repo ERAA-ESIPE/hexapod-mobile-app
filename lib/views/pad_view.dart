@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
@@ -62,6 +63,12 @@ class _PadViewState extends State<PadView> {
 
     var componentSize = (MediaQuery.of(context).size.height / 2.8);
 
+    var supportedGestures = [
+      Gestures.TAP,
+      Gestures.LONGPRESSSTART,
+      Gestures.LONGPRESSUP,
+    ];
+
     var leftJoystick = new JoystickView(
       size: componentSize,
       showArrows: true,
@@ -83,24 +90,28 @@ class _PadViewState extends State<PadView> {
       new PadButtonItem(
         index: 3,
         buttonImage: Image.asset("assets/right-chevron.png"),
+        supportedGestures: supportedGestures,
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 7,
         buttonImage: Image.asset("assets/down-chevron.png"),
+        supportedGestures: supportedGestures,
       ),
     );
     leftPadButton.add(
       new PadButtonItem(
-          index: 5,
-          buttonImage: Image.asset("assets/left-chevron.png"),
-          buttonText: "R1"),
+        index: 5,
+        buttonImage: Image.asset("assets/left-chevron.png"),
+        supportedGestures: supportedGestures,
+      ),
     );
     leftPadButton.add(
       new PadButtonItem(
         index: 4,
         buttonImage: Image.asset("assets/up-chevron.png"),
+        supportedGestures: supportedGestures,
       ),
     );
 
@@ -116,24 +127,28 @@ class _PadViewState extends State<PadView> {
       new PadButtonItem(
         index: 0,
         buttonImage: Image.asset("assets/circle.png"),
+        supportedGestures: supportedGestures,
       ),
     );
     rightPadButton.add(
       new PadButtonItem(
         index: 6,
         buttonImage: Image.asset("assets/x.png"),
+        supportedGestures: supportedGestures,
       ),
     );
     rightPadButton.add(
       new PadButtonItem(
         index: 2,
         buttonImage: Image.asset("assets/square.png"),
+        supportedGestures: supportedGestures,
       ),
     );
     rightPadButton.add(
       new PadButtonItem(
         index: 1,
         buttonImage: Image.asset("assets/triangle.png"),
+        supportedGestures: supportedGestures,
       ),
     );
 

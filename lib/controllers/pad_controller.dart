@@ -20,6 +20,8 @@ class PadController {
 
   SocketService socketService;
 
+  bool longPress;
+
   PadController(this.host, this.port) {
     this.socketService = new SocketService(host, port);
     this.leftStickX = 0;
@@ -27,10 +29,15 @@ class PadController {
     this.rightStickX = 0;
     this.rightStickY = 0;
     this.buttons = 0;
+    this.longPress = false;
   }
 
   padPressed(int buttonIndex, Gestures gesture) {
+    longPress = (gesture == Gestures.LONGPRESSSTART);
     buttons = _buildButtonOctet(buttonIndex);
+    if (gesture == Gestures.LONGPRESSUP) {
+      longPress = false;
+    }
   }
 
   rightJoystickMove(double degrees, double distance) {
@@ -53,7 +60,18 @@ class PadController {
 
   sendData() {
     socketService?.sendMessage(_buildMessage());
-    _bzero();
+    if (!longPress) {
+      _bzero();
+    }
+  }
+
+  /* Re-initalize all fields */
+  _bzero() {
+    this.leftStickX = 0;
+    this.leftStickY = 0;
+    this.rightStickX = 0;
+    this.rightStickY = 0;
+    this.buttons = 0;
   }
 
   String _buildMessage() {
@@ -100,14 +118,5 @@ class PadController {
     int x = (((distance * sin(_angleToRadians(degrees))) * modulo) % modulo)
         .toInt();
     return [x, y];
-  }
-
-  /* Re-initalize all fields */
-  _bzero() {
-    this.leftStickX = 0;
-    this.leftStickY = 0;
-    this.rightStickX = 0;
-    this.rightStickY = 0;
-    this.buttons = 0;
   }
 }

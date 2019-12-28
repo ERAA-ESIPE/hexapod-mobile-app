@@ -21,9 +21,10 @@ class SocketService {
     }
   }
 
-  void sendMessage(String message) {
+  void sendMessage(String message) async {
     var msg = utf8.encode(message);
     socket?.add(msg);
+    await socket.flush();
   }
 
   void destroy() {
