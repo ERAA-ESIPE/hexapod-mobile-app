@@ -75,8 +75,12 @@ class _HomeViewState extends State<HomeView> {
             children: <Widget>[
               new FormBuilderTextField(
                 attribute: 'ip_address',
-                decoration: InputDecoration(labelText: 'IP'),
-                keyboardType: TextInputType.text,
+                decoration: new InputDecoration(
+                  labelText: 'IP',
+                ),
+                keyboardType: TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validators: [
                   FormBuilderValidators.IP(),
                 ],

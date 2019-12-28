@@ -23,7 +23,9 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primaryColor: Color.fromRGBO(58, 66, 86, 1.0),
       ),
-      home: new HomeView(title: "Hexapod"),
+      home: new HomeView(
+        title: "Hexapod",
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
