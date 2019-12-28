@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexapod/views/pad_view.dart';
+import 'package:dart_ping/dart_ping.dart';
 
 class HomeView extends StatefulWidget {
   HomeView({Key key, this.title}) : super(key: key);
@@ -18,13 +19,38 @@ class _HomeViewState extends State<HomeView> {
   final GlobalKey<FormBuilderState> _fbKey = new GlobalKey<FormBuilderState>();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  final portKey = 'port';
-  final ipKey = 'address';
+  final _portKey = 'port';
+  final _ipKey = 'address';
+
+  bool socketReady = false;
 
   @override
   void initState() {
     super.initState();
   }
+
+  void _ping(String addr) async {
+    var p = await ping(addr, times: 2);
+    p.listen((data) {
+      print("hoho");
+      setState(() {
+        socketReady = true;
+      });
+    }).onError((err) {});
+  }
+
+  final errorView = (size) => new SafeArea(
+        child: new Scaffold(
+          //bottomNavigationBar: footer,
+          body: new Container(
+            child: Image.asset(
+              "assets/socker-error.png",
+              width: size,
+            ),
+            alignment: Alignment.center,
+          ),
+        ),
+      );
 
   void _submit() async {
     if (_fbKey.currentState.saveAndValidate()) {
@@ -35,14 +61,20 @@ class _HomeViewState extends State<HomeView> {
       var prefs = await _prefs;
       setState(
         () {
-          prefs.setString(portKey, _port);
-          prefs.setString(ipKey, _ip);
+          prefs.setString(_portKey, _port);
+          prefs.setString(_ipKey, _ip);
         },
       );
+
+      var _addr = _ip + ":" + _port;
+      _ping(_addr);
+
       Navigator.push(
         context,
         new MaterialPageRoute(
-          builder: (context) => new PadView(title: "Pad", ip: _ip, port: _port),
+          builder: (context) => !socketReady
+              ? errorView((MediaQuery.of(context).size.height))
+              : new PadView(title: "Pad", ip: _ip, port: _port),
         ),
       );
     } else {
@@ -52,11 +84,11 @@ class _HomeViewState extends State<HomeView> {
 
   Future<Map<String, String>> _getSaveData() async {
     var prefs = await _prefs;
-    var port = prefs.getString(portKey);
-    var ip = prefs.getString(ipKey);
+    var port = prefs.getString(_portKey);
+    var ip = prefs.getString(_ipKey);
     var map = new Map<String, String>();
-    map.putIfAbsent(ipKey, () => ip);
-    map.putIfAbsent(portKey, () => port);
+    map.putIfAbsent(_ipKey, () => ip);
+    map.putIfAbsent(_portKey, () => port);
     return Future.value(map);
   }
 
@@ -112,7 +144,7 @@ class _HomeViewState extends State<HomeView> {
             if (snapshot.hasData && snapshot.data != null) {
               return new Column(
                 children: <Widget>[
-                  _form(snapshot.data[ipKey], snapshot.data[portKey]),
+                  _form(snapshot.data[_ipKey], snapshot.data[_portKey]),
                   new SizedBox(
                     height: 20,
                   ),
