@@ -20,7 +20,7 @@ class PadController {
 
   SocketService socketService;
 
-  bool longPress;
+  bool longPressPad;
 
   PadController(this.host, this.port) {
     this.socketService = new SocketService(host, port);
@@ -29,14 +29,14 @@ class PadController {
     this.rightStickX = 0;
     this.rightStickY = 0;
     this.buttons = 0;
-    this.longPress = false;
+    this.longPressPad = false;
   }
 
   padPressed(int buttonIndex, Gestures gesture) {
-    longPress = (gesture == Gestures.LONGPRESSSTART);
+    longPressPad = (gesture == Gestures.LONGPRESSSTART);
     buttons = _buildButtonOctet(buttonIndex);
     if (gesture == Gestures.LONGPRESSUP) {
-      longPress = false;
+      longPressPad = false;
     }
   }
 
@@ -60,8 +60,8 @@ class PadController {
 
   sendData() {
     socketService?.sendMessage(_buildMessage());
-    if (!longPress) {
-      _bzero();
+    if (!longPressPad) {
+      _bzeroPad();
     }
   }
 
@@ -71,6 +71,10 @@ class PadController {
     this.leftStickY = 0;
     this.rightStickX = 0;
     this.rightStickY = 0;
+    this.buttons = 0;
+  }
+
+  _bzeroPad() {
     this.buttons = 0;
   }
 
