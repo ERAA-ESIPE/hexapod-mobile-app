@@ -38,6 +38,7 @@ class _PadViewState extends State<PadView> {
   void dispose() {
     super.dispose();
     controller.dispose();
+    socket?.flush();
     socket?.destroy();
   }
 
@@ -217,8 +218,7 @@ class _PadViewState extends State<PadView> {
             Timer.periodic(
               Duration(milliseconds: PadController.interval),
               (timer) {
-                socket?.add(controller.getTrame());
-                socket?.flush();
+                socket.add(controller.getTrame());
               },
             );
             return _column;
