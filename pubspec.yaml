@@ -29,7 +29,6 @@ dependencies:
   material_design_icons_flutter: ^3.4.4795
   flutter_launcher_icons: ^0.7.4
   flutter_spinkit: ^4.1.1+1
-  dart_ping: ^1.0.0
 
 dev_dependencies:
   flutter_test:

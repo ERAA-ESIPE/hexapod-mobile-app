@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexapod/views/pad_view.dart';
-import 'package:dart_ping/dart_ping.dart';
 
 class HomeView extends StatefulWidget {
   HomeView({Key key, this.title}) : super(key: key);
@@ -18,6 +17,8 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final GlobalKey<FormBuilderState> _fbKey = new GlobalKey<FormBuilderState>();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final Color _color = Color.fromARGB(255, 16, 88, 102);
+  final Color _backgroundColor = Color.fromARGB(255, 255, 250, 250);
 
   final _portKey = 'port';
   final _ipKey = 'address';
@@ -28,29 +29,6 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
   }
-
-  void _ping(String addr) async {
-    var p = await ping(addr, times: 2);
-    p.listen((data) {
-      print("hoho");
-      setState(() {
-        socketReady = true;
-      });
-    }).onError((err) {});
-  }
-
-  final errorView = (size) => new SafeArea(
-        child: new Scaffold(
-          //bottomNavigationBar: footer,
-          body: new Container(
-            child: Image.asset(
-              "assets/socker-error.png",
-              width: size,
-            ),
-            alignment: Alignment.center,
-          ),
-        ),
-      );
 
   void _submit() async {
     if (_fbKey.currentState.saveAndValidate()) {
@@ -66,15 +44,14 @@ class _HomeViewState extends State<HomeView> {
         },
       );
 
-      var _addr = _ip + ":" + _port;
-      _ping(_addr);
-
       Navigator.push(
         context,
         new MaterialPageRoute(
-          builder: (context) => !socketReady
-              ? errorView((MediaQuery.of(context).size.height))
-              : new PadView(title: "Pad", ip: _ip, port: _port),
+          builder: (context) => new PadView(
+            title: "Pad",
+            ip: _ip,
+            port: _port,
+          ),
         ),
       );
     } else {
@@ -95,7 +72,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final appBar = new AppBar(
-      backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
+      backgroundColor: _color,
       title: new Text(widget.title),
     );
 
@@ -135,6 +112,7 @@ class _HomeViewState extends State<HomeView> {
       child: new Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: appBar,
+        backgroundColor: _backgroundColor,
         body: new FutureBuilder(
           future: _getSaveData(),
           builder: (context, snapshot) {
@@ -158,7 +136,7 @@ class _HomeViewState extends State<HomeView> {
                       shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30.0),
                         side: new BorderSide(
-                          color: Color.fromRGBO(58, 80, 86, 1.0),
+                          color: _color,
                         ),
                       ),
                       child: Image.asset(
@@ -172,7 +150,7 @@ class _HomeViewState extends State<HomeView> {
               );
             } else {
               return new SpinKitDoubleBounce(
-                color: Colors.white,
+                color: _color,
               );
             }
           },

@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:control_pad/models/gestures.dart';
 import 'package:control_pad/models/pad_button_item.dart';
 import 'package:control_pad/views/joystick_view.dart';
 import 'package:control_pad/views/pad_button_view.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hexapod/controllers/pad_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hexapod/views/error_view.dart';
 
 class PadView extends StatefulWidget {
   PadView({Key key, this.title, this.ip, this.port}) : super(key: key);
@@ -21,23 +24,21 @@ class PadView extends StatefulWidget {
 
 class _PadViewState extends State<PadView> {
   PadController controller;
+  Socket socket;
+  final Color _color = Color.fromARGB(255, 16, 88, 102);
+  final Color _backgroundColor = Color.fromARGB(255, 220, 220, 220);
 
   @override
   void initState() {
     super.initState();
-    controller = new PadController(widget.ip, int.parse(widget.port));
-    Timer.periodic(
-      Duration(milliseconds: PadController.interval),
-      (timer) {
-        controller.sendData();
-      },
-    );
+    controller = new PadController();
   }
 
   @override
   void dispose() {
     super.dispose();
     controller.dispose();
+    socket?.destroy();
   }
 
   @override
@@ -45,7 +46,7 @@ class _PadViewState extends State<PadView> {
     final footer = new Container(
       height: 55.0,
       child: new BottomAppBar(
-        color: Color.fromRGBO(58, 80, 86, 1.0),
+        color: _color,
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -200,15 +201,48 @@ class _PadViewState extends State<PadView> {
       ],
     );
 
+    final _child = new FutureBuilder(
+      future: Socket.connect(
+        widget.ip,
+        int.parse(widget.port),
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return new ErrorView();
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && (snapshot.data != null)) {
+            socket = snapshot.data;
+            Timer.periodic(
+              Duration(milliseconds: PadController.interval),
+              (timer) {
+                socket?.add(controller.getTrame());
+                socket?.flush();
+              },
+            );
+            return _column;
+          } else {
+            return ErrorView();
+          }
+        } else {
+          return new SpinKitDoubleBounce(
+            color: _color,
+          );
+        }
+      },
+    );
+
     return new SafeArea(
       child: new Scaffold(
         bottomNavigationBar: footer,
         body: new Container(
-          color: Colors.grey,
-          child: _column,
+          color: _backgroundColor,
+          child: _child,
           padding: EdgeInsets.all(
             8.0,
           ),
+          alignment: Alignment.center,
         ),
       ),
     );
