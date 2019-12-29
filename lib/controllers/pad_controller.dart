@@ -1,108 +1,102 @@
+import 'dart:convert';
+
 import 'package:control_pad/models/gestures.dart';
-import 'package:hexapod/services/socketservice.dart';
 import 'dart:math';
 
 class PadController {
-  final String host;
-  final int port;
   static final int mask = 0x1;
   static final int interval = 100; // Send trame each 100ms
   static final int radix = 16;
-  final int nopeOctet = 0x0;
-  final int startAndEndOctet = 0xFF;
-  final int modulo = 235;
+  final int _nopeOctet = 0x0;
+  final int _startAndEndOctet = 0xFF;
+  final int _modulo = 235;
 
-  int leftStickX;
-  int leftStickY;
-  int rightStickX;
-  int rightStickY;
-  int buttons;
+  int _leftStickX;
+  int _leftStickY;
+  int _rightStickX;
+  int _rightStickY;
+  int _buttons;
+  bool _longPressPad;
 
-  SocketService socketService;
-
-  bool longPressPad;
-
-  PadController(this.host, this.port) {
-    this.socketService = new SocketService(host, port);
-    this.leftStickX = 0;
-    this.leftStickY = 0;
-    this.rightStickX = 0;
-    this.rightStickY = 0;
-    this.buttons = 0;
-    this.longPressPad = false;
+  PadController() {
+    this._leftStickX = 0;
+    this._leftStickY = 0;
+    this._rightStickX = 0;
+    this._rightStickY = 0;
+    this._buttons = 0;
+    this._longPressPad = false;
   }
 
   padPressed(int buttonIndex, Gestures gesture) {
-    longPressPad = (gesture == Gestures.LONGPRESSSTART);
-    buttons = _buildButtonOctet(buttonIndex);
+    _longPressPad = (gesture == Gestures.LONGPRESSSTART);
+    _buttons = _buildButtonOctet(buttonIndex);
     if (gesture == Gestures.LONGPRESSUP) {
-      longPressPad = false;
+      _longPressPad = false;
     }
   }
 
   rightJoystickMove(double degrees, double distance) {
     var result = _joystickMove(degrees, distance);
-    rightStickX = result[0];
-    rightStickY = result[1];
+    _rightStickX = result[0];
+    _rightStickY = result[1];
   }
 
   leftJoystickMove(double degrees, double distance) {
     var result = _joystickMove(degrees, distance);
-    leftStickX = result[0];
-    leftStickY = result[1];
+    _leftStickX = result[0];
+    _leftStickY = result[1];
   }
 
   dispose() {
-    socketService?.destroy();
     _bzero();
-    socketService = null;
   }
 
-  sendData() {
-    socketService?.sendMessage(_buildMessage());
-    if (!longPressPad) {
+  getTrame() {
+    var msg = _buildMessage();
+    if (!_longPressPad) {
       _bzeroPad();
     }
+    return utf8.encode(msg);
   }
 
   /* Re-initalize all fields */
   _bzero() {
-    this.leftStickX = 0;
-    this.leftStickY = 0;
-    this.rightStickX = 0;
-    this.rightStickY = 0;
-    this.buttons = 0;
+    this._leftStickX = 0;
+    this._leftStickY = 0;
+    this._rightStickX = 0;
+    this._rightStickY = 0;
+    this._buttons = 0;
   }
 
   _bzeroPad() {
-    this.buttons = 0;
+    this._buttons = 0;
   }
 
   String _buildMessage() {
     var separator = ';';
     var buffer = new StringBuffer();
-    buffer.write(startAndEndOctet.toRadixString(radix));
+    buffer.write(_startAndEndOctet.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(leftStickX.toRadixString(radix));
+    buffer.write(_leftStickX.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(leftStickY.toRadixString(radix));
+    buffer.write(_leftStickY.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(rightStickX.toRadixString(radix));
+    buffer.write(_rightStickX.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(rightStickY.toRadixString(radix));
+    buffer.write(_rightStickY.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(buttons.toRadixString(radix));
+    buffer.write(_buttons.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(nopeOctet.toRadixString(radix));
+    buffer.write(_nopeOctet.toRadixString(radix));
     buffer.write(separator);
 
-    buffer.write(startAndEndOctet.toRadixString(radix));
+    buffer.write(_startAndEndOctet.toRadixString(radix));
     buffer.writeln();
     return buffer.toString().toUpperCase();
   }
@@ -117,9 +111,9 @@ class PadController {
   }
 
   List<int> _joystickMove(double degrees, double distance) {
-    int y = (((distance * cos(_angleToRadians(degrees))) * modulo) % modulo)
+    int y = (((distance * cos(_angleToRadians(degrees))) * _modulo) % _modulo)
         .toInt();
-    int x = (((distance * sin(_angleToRadians(degrees))) * modulo) % modulo)
+    int x = (((distance * sin(_angleToRadians(degrees))) * _modulo) % _modulo)
         .toInt();
     return [x, y];
   }

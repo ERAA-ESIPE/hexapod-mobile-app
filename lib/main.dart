@@ -10,10 +10,10 @@ Future main() async {
       DeviceOrientation.landscapeRight,
     ],
   );
-  runApp(new MyApp());
+  runApp(new App());
 }
 
-class MyApp extends StatelessWidget {
+class App extends StatelessWidget {
   // This widget is the root of your application.
 
   @override

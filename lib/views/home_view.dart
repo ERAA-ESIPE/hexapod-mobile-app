@@ -17,9 +17,13 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   final GlobalKey<FormBuilderState> _fbKey = new GlobalKey<FormBuilderState>();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final Color _color = Color.fromARGB(255, 16, 88, 102);
+  final Color _backgroundColor = Color.fromARGB(255, 255, 250, 250);
 
-  final portKey = 'port';
-  final ipKey = 'address';
+  final _portKey = 'port';
+  final _ipKey = 'address';
+
+  bool socketReady = false;
 
   @override
   void initState() {
@@ -35,14 +39,19 @@ class _HomeViewState extends State<HomeView> {
       var prefs = await _prefs;
       setState(
         () {
-          prefs.setString(portKey, _port);
-          prefs.setString(ipKey, _ip);
+          prefs.setString(_portKey, _port);
+          prefs.setString(_ipKey, _ip);
         },
       );
+
       Navigator.push(
         context,
         new MaterialPageRoute(
-          builder: (context) => new PadView(title: "Pad", ip: _ip, port: _port),
+          builder: (context) => new PadView(
+            title: "Pad",
+            ip: _ip,
+            port: _port,
+          ),
         ),
       );
     } else {
@@ -52,18 +61,18 @@ class _HomeViewState extends State<HomeView> {
 
   Future<Map<String, String>> _getSaveData() async {
     var prefs = await _prefs;
-    var port = prefs.getString(portKey);
-    var ip = prefs.getString(ipKey);
+    var port = prefs.getString(_portKey);
+    var ip = prefs.getString(_ipKey);
     var map = new Map<String, String>();
-    map.putIfAbsent(ipKey, () => ip);
-    map.putIfAbsent(portKey, () => port);
+    map.putIfAbsent(_ipKey, () => ip);
+    map.putIfAbsent(_portKey, () => port);
     return Future.value(map);
   }
 
   @override
   Widget build(BuildContext context) {
     final appBar = new AppBar(
-      backgroundColor: Color.fromRGBO(58, 80, 86, 1.0),
+      backgroundColor: _color,
       title: new Text(widget.title),
     );
 
@@ -103,6 +112,7 @@ class _HomeViewState extends State<HomeView> {
       child: new Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: appBar,
+        backgroundColor: _backgroundColor,
         body: new FutureBuilder(
           future: _getSaveData(),
           builder: (context, snapshot) {
@@ -112,7 +122,7 @@ class _HomeViewState extends State<HomeView> {
             if (snapshot.hasData && snapshot.data != null) {
               return new Column(
                 children: <Widget>[
-                  _form(snapshot.data[ipKey], snapshot.data[portKey]),
+                  _form(snapshot.data[_ipKey], snapshot.data[_portKey]),
                   new SizedBox(
                     height: 20,
                   ),
@@ -126,7 +136,7 @@ class _HomeViewState extends State<HomeView> {
                       shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30.0),
                         side: new BorderSide(
-                          color: Color.fromRGBO(58, 80, 86, 1.0),
+                          color: _color,
                         ),
                       ),
                       child: Image.asset(
@@ -140,7 +150,7 @@ class _HomeViewState extends State<HomeView> {
               );
             } else {
               return new SpinKitDoubleBounce(
-                color: Colors.white,
+                color: _color,
               );
             }
           },
