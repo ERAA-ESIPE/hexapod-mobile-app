@@ -33,8 +33,8 @@ class _HomeViewState extends State<HomeView> {
   void _submit() async {
     if (_fbKey.currentState.saveAndValidate()) {
       var values = _fbKey.currentState.value;
-      var _ip = values['ip_address'] ?? "";
-      var _port = values['port'] ?? 8080;
+      var _ip = values['ip_address'];
+      var _port = values['port'];
 
       var prefs = await _prefs;
       setState(
@@ -92,6 +92,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 validators: [
                   FormBuilderValidators.IP(),
+                  FormBuilderValidators.required(),
                 ],
               ),
               new FormBuilderTextField(
@@ -102,6 +103,7 @@ class _HomeViewState extends State<HomeView> {
                 keyboardType: TextInputType.number,
                 validators: [
                   FormBuilderValidators.numeric(),
+                  FormBuilderValidators.required(),
                 ],
               ),
             ],
@@ -141,8 +143,8 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       child: Image.asset(
                         'assets/startup.png',
-                        width: 150,
-                        height: 150,
+                        width: 120,
+                        height: 120,
                       ),
                     ),
                   ),
