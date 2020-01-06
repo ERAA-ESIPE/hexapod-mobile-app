@@ -97,6 +97,7 @@ class PadController {
     buffer.write(separator);
 
     buffer.write(_startAndEndOctet.toRadixString(radix));
+    buffer.write(separator);
     buffer.writeln();
     return buffer.toString().toUpperCase();
   }
