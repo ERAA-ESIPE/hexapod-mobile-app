@@ -9,8 +9,9 @@ class PadController {
   static final int radix = 16;
   final int _nopeOctet = 0x0;
   final int _startAndEndOctet = 0xFF;
-  final int _modulo = 235;
-
+  final int _modulo = 232;
+  final int _distanceMax = 1;
+  final int _offset = 3;
   int _leftStickX;
   int _leftStickY;
   int _rightStickX;
@@ -19,10 +20,10 @@ class PadController {
   bool _longPressPad;
 
   PadController() {
-    this._leftStickX = 0;
-    this._leftStickY = 0;
-    this._rightStickX = 0;
-    this._rightStickY = 0;
+    this._leftStickX = (_modulo ~/ 2) + _offset;
+    this._leftStickY = (_modulo ~/ 2) + _offset;
+    this._rightStickX = (_modulo ~/ 2) + _offset;
+    this._rightStickY = (_modulo ~/ 2) + _offset;
     this._buttons = 0;
     this._longPressPad = false;
   }
@@ -112,10 +113,23 @@ class PadController {
   }
 
   List<int> _joystickMove(double degrees, double distance) {
-    int y = (((distance * cos(_angleToRadians(degrees))) * _modulo) % _modulo)
+    print('degres ' + degrees.toString());
+    print('distance ' + distance.toString());
+    // int y = (((distance * cos(_angleToRadians(degrees))) * _modulo) % _modulo)   .toInt();
+    //int x = (((distance * sin(_angleToRadians(degrees))) * _modulo) % _modulo)  .toInt();
+
+    int y = ((((_modulo / 2) * _distanceMax) *
+                (sin(degrees) * distance + _distanceMax)) +
+            _offset)
         .toInt();
-    int x = (((distance * sin(_angleToRadians(degrees))) * _modulo) % _modulo)
+
+    int x = ((((_modulo / 2) * _distanceMax) *
+                (cos(degrees) * distance + _distanceMax)) +
+            _offset)
         .toInt();
+
+    print(x);
+    print(y);
     return [x, y];
   }
 }
