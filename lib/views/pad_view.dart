@@ -38,8 +38,8 @@ class _PadViewState extends State<PadView> {
   void dispose() {
     super.dispose();
     controller.dispose();
-    socket?.flush();
-    socket?.destroy();
+    socket.flush();
+    socket.destroy();
   }
 
   @override
@@ -72,19 +72,21 @@ class _PadViewState extends State<PadView> {
     ];
 
     var leftJoystick = new JoystickView(
-      size: componentSize,
+      size: componentSize + 10,
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
       onDirectionChanged: controller.leftJoystickMove,
+      interval: Duration(milliseconds: PadController.interval),
     );
 
     var rightJoystick = new JoystickView(
-      size: componentSize,
+      size: componentSize + 10,
       showArrows: true,
       backgroundColor: Colors.black45,
       innerCircleColor: Colors.black12,
       onDirectionChanged: controller.rightJoystickMove,
+      interval: Duration(milliseconds: PadController.interval),
     );
 
     var leftPadButton = new List<PadButtonItem>();
@@ -218,12 +220,14 @@ class _PadViewState extends State<PadView> {
             Timer.periodic(
               Duration(milliseconds: PadController.interval),
               (timer) {
-                socket.add(controller.getTrame());
+                var trame = controller.getTrame();
+                //print(trame);
+                socket.add(trame);
               },
             );
             return _column;
           } else {
-            return ErrorView();
+            return new ErrorView();
           }
         } else {
           return new SpinKitDoubleBounce(

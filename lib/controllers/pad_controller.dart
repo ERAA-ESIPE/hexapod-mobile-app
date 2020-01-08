@@ -5,7 +5,7 @@ import 'dart:math';
 
 class PadController {
   static final int mask = 0x1;
-  static final int interval = 100; // Send trame each 100ms
+  static final int interval = 50; // Send trame each 100ms
   static final int radix = 16;
   final int _nopeOctet = 0x0;
   final int _startAndEndOctet = 0xFF;
@@ -49,7 +49,7 @@ class PadController {
   }
 
   dispose() {
-    _bzero();
+    //_bzero();
   }
 
   getTrame() {
@@ -74,6 +74,9 @@ class PadController {
   }
 
   String _buildMessage() {
+    //print('send X ' + _leftStickX.toString());
+    //print('send Y ' + _leftStickY.toString());
+
     var separator = ';';
     var buffer = new StringBuffer();
     buffer.write(_startAndEndOctet.toRadixString(radix));
@@ -98,8 +101,6 @@ class PadController {
     buffer.write(separator);
 
     buffer.write(_startAndEndOctet.toRadixString(radix));
-    buffer.write(separator);
-    buffer.writeln();
     return buffer.toString().toUpperCase();
   }
 
@@ -108,28 +109,32 @@ class PadController {
   int _buildButtonOctet(int position) {
     int n = 0x0;
     n = (n) | (mask << (position));
-    print('n: $n');
+    //print('n: $n');
     return n;
   }
 
   List<int> _joystickMove(double degrees, double distance) {
-    print('degres ' + degrees.toString());
-    print('distance ' + distance.toString());
-    // int y = (((distance * cos(_angleToRadians(degrees))) * _modulo) % _modulo)   .toInt();
-    //int x = (((distance * sin(_angleToRadians(degrees))) * _modulo) % _modulo)  .toInt();
+    degrees = ((degrees - 90) % 360) * -1;
 
-    int y = ((((_modulo / 2) * _distanceMax) *
-                (sin(degrees) * distance + _distanceMax)) +
-            _offset)
-        .toInt();
+    //print('degres ' + degrees.toString());
+    //print('distance ' + distance.toString());
+    //int y = (((distance * cos(_angleToRadians(degrees))) * _modulo) % _modulo).toInt();
+    //int x = (((distance * sin(_angleToRadians(degrees))) * _modulo) % _modulo).toInt();
 
-    int x = ((((_modulo / 2) * _distanceMax) *
-                (cos(degrees) * distance + _distanceMax)) +
-            _offset)
-        .toInt();
+    int x = (
+      ((_modulo / 2) * _distanceMax) 
+      *
+      ((cos(degrees) * distance) + _distanceMax)
+      ).toInt();
 
-    print(x);
-    print(y);
+    int y = (
+      ((_modulo / 2) * _distanceMax) 
+      *
+      ((sin(degrees) * distance) + _distanceMax)
+      ).toInt();
+
+    //print(x);
+    // print(y);
     return [x, y];
   }
 }
